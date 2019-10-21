@@ -39,6 +39,8 @@ void encode(FILE *in, FILE *out){
 	char k;
 	char wk[ENTRYSIZE];;
 	int w_length = 0;
+	int current_w_index = 0;
+	int current_dic_index = 256;
 	for(k = fgetc(in); k != EOF; k = fgetc(in)){
 		int i;
 		//creates wk from w and k
@@ -64,8 +66,21 @@ void encode(FILE *in, FILE *out){
 			int i;
 			for(i = 0; i < w_length; i++)
 				w[i] = wk[i];
+			current_w_index = i;
+		}
+		else {
+			write12(out, current_w_index);
+			dict[current_dic_index][0] = w_length;
+			for(i = 1; i <= w_length; i++){
+				dict[current_dic_index][i] = wk[i-1];
+				w[i-1] = wk[i-1];
+				current_dic_index++;
+
+			}
 		}
 	}
+	write12(out, current_w_index);
+	flush12(out);
 }
 
 /*****************************************************************************/
