@@ -48,17 +48,19 @@ void encode(FILE *in, FILE *out){
 			wk[i] = w[i];
 		wk[i] = k;
 		//sees if its in the dictionary
-		int in_dic = 0;
+		int in_dic;
 		for(i = 0; i < DICTSIZE; i++){
 			int j;
+			in_dic = 0;
 			for(j = 1; j <= w_length + 1; j++){
 				if(wk[j-1] == dict[i][j])
 					in_dic = 1;
 				else 
 					in_dic = 0;
 			}
-			if(in_dic)
-				break;
+			if(in_dic){
+				current_w_index = i;
+			}
 		}
 		if(in_dic){
 			//sets w to wk
@@ -66,7 +68,7 @@ void encode(FILE *in, FILE *out){
 			int i;
 			for(i = 0; i < w_length; i++)
 				w[i] = wk[i];
-			current_w_index = i;
+
 		}
 		else {
 			write12(out, current_w_index);
