@@ -90,6 +90,7 @@ void encode(FILE *in, FILE *out){
 /* in the assignment specification.                                          */
 void decode(FILE *in, FILE *out) {
 	// TODO implement
+	//test
 }
 
 /*****************************************************************************/
