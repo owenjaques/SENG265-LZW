@@ -43,7 +43,7 @@ void encode(FILE *in, FILE *out){
 	int w_length = 0;
 	int current_w_index = 0;
 	int current_dic_index = 256;
-	for(k = fgetc(in); k != EOF; k = fgetc(in)){
+	for(k = fgetc(in); !feof(in); k = fgetc(in)){
 		int i;
 		//creates wk from w and k
 		for(i = 0; i < w_length; i++)
