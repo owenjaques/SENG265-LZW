@@ -3,14 +3,16 @@
 #include <ctype.h>
 #include <string.h>
 
-#define TRUE 1
-#define FALSE 0
-
 #define DICTSIZE 4096                     /* allow 4096 entries in the dict  */
 #define ENTRYSIZE 32
 
 #define ENCODE 1
 #define DECODE 2
+
+int read12(FILE *infil);
+int write12(FILE *outfil, int int12);
+void strip_lzw_ext(char *fname);
+void flush12(FILE *outfil);
 
 unsigned char dict[DICTSIZE][ENTRYSIZE];  /* of 30 chars max; the first byte */
                                           /* is string length; index 0xFFF   */
@@ -54,7 +56,7 @@ void encode(FILE *in, FILE *out){
 			int j;
 			this_in_dic = 0;
 			for(j = 1; j <= w_length + 1; j++){
-				if(wk[j-1] == dict[i][j])//add something to make sure this_in_dic 1 before
+				if(wk[j-1] == dict[i][j] && dict[i][0] == w_length + 1)
 					this_in_dic = 1;
 				else {
 					this_in_dic = 0;
@@ -66,10 +68,9 @@ void encode(FILE *in, FILE *out){
 				current_w_index = i;
 			}
 		}
-		if(in_dic){
+		if(in_dic && w_length < ENTRYSIZE){
 			//sets w to wk
 			w_length++;
-			int i;
 			for(i = 0; i < w_length; i++)
 				w[i] = wk[i];
 
