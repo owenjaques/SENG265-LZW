@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#define DICTSIZE 4096						/* allow 4096 entries in the dict  */
+#define DICTSIZE 4096 /* allow 4096 entries in the dict  */
 #define ENTRYSIZE 32
 
 #define ENCODE 1
@@ -18,10 +18,11 @@ void encode(FILE *in, FILE *out);
 void decode(FILE *in, FILE *out);
 
 
-unsigned char dict[DICTSIZE][ENTRYSIZE];	/* of 30 chars max; the first byte */
-											/* is string length; index 0xFFF   */
-											/* will be reserved for padding    */
-											/* the last byte (if necessary)    */
+unsigned char dict[DICTSIZE][ENTRYSIZE];
+/* of 30 chars max; the first byte */
+/* is string length; index 0xFFF   */
+/* will be reserved for padding    */
+/* the last byte (if necessary)    */
 
 //adds the initial 255 ASCII chars to dictionary
 void initDic(){
