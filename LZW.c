@@ -37,39 +37,42 @@ void initDic(){
 /* by a separate function, just so I don't have to worry about writing 12    */
 /* bit numbers inside this algorithm.                                        */
 void encode(FILE *in, FILE *out){
-	char w[ENTRYSIZE] = {}; 
-	char k;
-	char wk[ENTRYSIZE] = {};
+	unsigned char w[ENTRYSIZE] = {};
+	unsigned char k;
+	unsigned char wk[ENTRYSIZE] = {};
 	int w_length = 0;
-	int current_w_index = 0;
-	int current_dic_index = 256;
+	int current_w_index;//used for writing the dict code of w to the file
+	int current_dic_index = 256;//used to keep track of the next dictionary index to put a new wk at
+	k = fgetc(in);
 	while(!feof(in)){
-		k = fgetc(in);
 		int i;
-		//creates wk from w and k
-		for(i = 0; i < w_length; i++)
-			wk[i] = w[i];
-		wk[i] = k;
-		//sees if its in the dictionary
 		int in_dic = 0;
-		int this_in_dic;
-		for(i = 0; i < DICTSIZE; i++){
-			int j;
-			this_in_dic = 0;
-			for(j = 1; j <= w_length + 1; j++){
-				if(wk[j-1] == dict[i][j] && dict[i][0] == w_length + 1)
-					this_in_dic = 1;
-				else {
-					this_in_dic = 0;
-					break;
+		//if wk would be to large to hold in the dictionary skip to outputting w
+		if(w_length < ENTRYSIZE - 1){
+			//creates wk from w and k
+			for(i = 0; i < w_length; i++)
+				wk[i] = w[i];
+			wk[i] = k;
+			//sees if wk is in the dictionary
+			int this_in_dic;
+			for(i = 0; i < current_dic_index; i++){
+				int j;
+				this_in_dic = 0;
+				for(j = 1; j <= w_length + 1; j++){
+					if(wk[j-1] == dict[i][j] && dict[i][0] == w_length + 1)
+						this_in_dic = 1;
+					else {
+						this_in_dic = 0;
+						break;
+					}
+				}
+				if(this_in_dic){
+					in_dic = 1;
+					current_w_index = i;
 				}
 			}
-			if(this_in_dic){
-				in_dic = 1;
-				current_w_index = i;
-			}
 		}
-		if(in_dic && w_length < ENTRYSIZE){
+		if(in_dic){
 			//sets w to wk
 			w_length++;
 			for(i = 0; i < w_length; i++)
@@ -84,12 +87,13 @@ void encode(FILE *in, FILE *out){
 				for(i = 1; i <= w_length + 1; i++){
 					dict[current_dic_index][i] = wk[i-1];
 				}
+				current_dic_index++;
 			}
 			w[0] = k;
 			w_length = 1;
 			current_w_index = k;
-			current_dic_index++;
 		}
+		k = fgetc(in);
 	}
 	write12(out, current_w_index);
 	flush12(out);
@@ -219,7 +223,7 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	FILE* input_file = fopen(argv[1], "r");
+	FILE* input_file = fopen(argv[1], "rb");
 
 	if(input_file == NULL){
 		printf("Read error: file not found or cannot be read\n");
@@ -233,12 +237,14 @@ int main(int argc, char *argv[]){
 	switch(state){
 		case ENCODE:
 			snprintf(file_name, 256*sizeof(char), "%s.LZW", argv[1]);
-			output_file = fopen(file_name, "w");
+			output_file = fopen(file_name, "wb");
 			encode(input_file, output_file);
 			break;
 		case DECODE:
 			break;
 	}
+	fclose(output_file);
+	fclose(input_file);
 
 	return 0;
 }
