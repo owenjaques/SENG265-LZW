@@ -113,13 +113,14 @@ void encode(FILE *in, FILE *out){
 /* decode() performs the Lempel Ziv Welch decompression from the algorithm   */
 /* in the assignment specification.                                          */
 void decode(FILE *in, FILE *out) {
-		unsigned char *w;//points to a dictionary entry
+	unsigned char *w;//points to a dictionary entry
 	int k = read12(in);
 	int current_dic_index = 256;
 	fputc(dict[k][1], out);
 	w = &dict[k];
 	k = read12(in);
-	while(!feof(in)){
+	//runs until the end of file is reached or the padding bit is detected
+	while(!feof(in) && k != DICTSIZE - 1){
 		//checks if k is in the dictionary
 		if(dict[k][0]){
 			int i;
