@@ -52,8 +52,9 @@ void encode(FILE *in, FILE *out){
 	while(!feof(in)){
 		int i;
 		int in_dic = 0;
+		int dont_add = 0;//a rarely used flag to indicate if w reached the entry size and to not add wk to dict
 		//if wk would be to large to hold in the dictionary skip to outputting w
-		if(w_length < ENTRYSIZE - 2){
+		if(w_length < ENTRYSIZE - 4){
 			//creates wk from w and k
 			for(i = 0; i < w_length; i++)
 				wk[i] = w[i];
@@ -77,6 +78,8 @@ void encode(FILE *in, FILE *out){
 				}
 			}
 		}
+		else
+			dont_add = 1;
 		if(in_dic){
 			//sets w to wk
 			w_length++;
@@ -86,13 +89,15 @@ void encode(FILE *in, FILE *out){
 		}
 		else {
 			write12(out, current_w_index);
-			//adds wk to dictionary if not full
-			if(current_dic_index < 4096){
-				dict[current_dic_index][0] = w_length + 1;
-				for(i = 1; i <= w_length + 1; i++){
-					dict[current_dic_index][i] = wk[i-1];
+			if(!dont_add){
+				//adds wk to dictionary if not full
+				if(current_dic_index < 4096){
+					dict[current_dic_index][0] = w_length + 1;
+					for(i = 1; i <= w_length + 1; i++){
+						dict[current_dic_index][i] = wk[i-1];
+					}
+					current_dic_index++;
 				}
-				current_dic_index++;
 			}
 			w[0] = k;
 			w_length = 1;
