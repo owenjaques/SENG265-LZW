@@ -53,7 +53,7 @@ void encode(FILE *in, FILE *out){
 		int i;
 		int in_dic = 0;
 		//if wk would be to large to hold in the dictionary skip to outputting w
-		if(w_length < ENTRYSIZE - 1){
+		if(w_length < ENTRYSIZE - 2){
 			//creates wk from w and k
 			for(i = 0; i < w_length; i++)
 				wk[i] = w[i];
