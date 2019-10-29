@@ -108,8 +108,65 @@ void encode(FILE *in, FILE *out){
 /* decode() performs the Lempel Ziv Welch decompression from the algorithm   */
 /* in the assignment specification.                                          */
 void decode(FILE *in, FILE *out) {
-	// TODO implement
-	//test
+		unsigned char *w;//points to a dictionary entry
+	int k = read12(in);
+	int current_dic_index = 256;
+	fputc(dict[k][1], out);
+	w = &dict[k];
+	k = read12(in);
+	while(!feof(in)){
+		//checks if k is in the dictionary
+		if(dict[k][0]){
+			int i;
+			//outputs dict[k] to file
+			for(i = 1; i <= dict[k][0]; i++){
+				fputc(dict[k][i], out);
+			}
+			//adds w + first character of dict[k] to dict if it does not already exist
+			int in_dic = 0;
+			for(i = 0; i < current_dic_index; i++){
+				int j;
+				for(j = 1; j <= dict[i][0] || j <= w[0]; j++){
+					if(dict[i][j] == w[j])
+						in_dic = 1;
+					else {
+						in_dic = 0;
+						break;
+					}
+				}
+				if(in_dic && dict[k][1] == dict[i][j]){
+					in_dic = 1;
+					break;
+				}
+				else
+					in_dic = 0;
+			}
+			if(!in_dic){
+				dict[current_dic_index][0] = w[0] + 1;
+				for(i = 1; i <= w[0]; i++){
+					dict[current_dic_index][i] = w[i];
+				}
+				dict[current_dic_index][i] = dict[k][1];
+				current_dic_index++;
+			}
+		}
+		else {
+			//add w + first character of w to the dict if w[0] != 0
+			dict[current_dic_index][0] = w[0] + 1;
+			int i;
+			for(i = 1; i <= w[0]; i++){
+				dict[current_dic_index][i] = w[i];
+			}
+			dict[current_dic_index][i] = w[1];
+			//outputs dict[w + w[1]] to file
+			for(i = 1; i <= dict[current_dic_index][0]; i++){
+				fputc(dict[current_dic_index][i], out);
+			}
+			current_dic_index++;
+		}
+		w = &dict[k];
+		k = read12(in);
+	}
 }
 
 /*****************************************************************************/
@@ -246,6 +303,9 @@ int main(int argc, char *argv[]){
 			encode(input_file, output_file);
 			break;
 		case DECODE:
+			strip_lzw_ext(argv[1]);
+			output_file = fopen(argv[1], "wb");
+			decode(input_file, output_file);
 			break;
 	}
 	fclose(output_file);
