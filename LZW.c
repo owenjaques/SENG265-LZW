@@ -42,10 +42,9 @@ void initDic(){
 /* by a separate function, just so I don't have to worry about writing 12    */
 /* bit numbers inside this algorithm.                                        */
 void encode(FILE *in, FILE *out){
-	unsigned char w[ENTRYSIZE] = {};//an unsigned char array stored in the same format as the dict entries with length at index 0
+	unsigned char w[ENTRYSIZE] = {0};//an unsigned char array stored in the same format as the dict entries with length at index 0
 	unsigned char k;
 	unsigned char wk[ENTRYSIZE] = {};
-	w[0] = 0;
 	int current_w_index;//used for writing the dict code of w to the file
 	int current_dic_index = 256;//used to keep track of the next dictionary index to put a new wk at
 	k = fgetc(in);
@@ -80,7 +79,8 @@ void encode(FILE *in, FILE *out){
 			}
 		}
 		else
-			dont_add = 1;
+			dont_add = 1;//wk has reached the entry size dont add to dict and skip to outputting
+
 		if(in_dic){
 			//sets w to wk
 			for(i = 0; i <= w[0]; i++)
@@ -99,8 +99,8 @@ void encode(FILE *in, FILE *out){
 					current_dic_index++;
 				}
 			}
-			w[1] = k;
 			w[0] = 1;
+			w[1] = k;
 			current_w_index = k;
 		}
 		k = fgetc(in);
