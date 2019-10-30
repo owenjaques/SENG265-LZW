@@ -42,10 +42,9 @@ void initDic(){
 /* by a separate function, just so I don't have to worry about writing 12    */
 /* bit numbers inside this algorithm.                                        */
 void encode(FILE *in, FILE *out){
-	unsigned char w[ENTRYSIZE] = {};
+	unsigned char w[ENTRYSIZE] = {};//an unsigned char array stored in the same format as the dict entries with length at index 0
 	unsigned char k;
 	unsigned char wk[ENTRYSIZE] = {};
-	int w_length = 0;
 	w[0] = 0;
 	int current_w_index;//used for writing the dict code of w to the file
 	int current_dic_index = 256;//used to keep track of the next dictionary index to put a new wk at
@@ -66,8 +65,8 @@ void encode(FILE *in, FILE *out){
 			for(i = 0; i < current_dic_index; i++){
 				int j;
 				this_in_dic = 0;
-				for(j = 1; j <= w[0] + 1; j++){
-					if(wk[j] == dict[i][j] && dict[i][0] == w[0] + 1)
+				for(j = 1; j <= wk[0]; j++){
+					if(wk[j] == dict[i][j] && dict[i][0] == wk[0])
 						this_in_dic = 1;
 					else {
 						this_in_dic = 0;
@@ -84,8 +83,7 @@ void encode(FILE *in, FILE *out){
 			dont_add = 1;
 		if(in_dic){
 			//sets w to wk
-			w[0]++;
-			for(i = 1; i <= w[0]; i++)
+			for(i = 0; i <= w[0]; i++)
 				w[i] = wk[i];
 
 		}
@@ -94,8 +92,8 @@ void encode(FILE *in, FILE *out){
 			if(!dont_add){
 				//adds wk to dictionary if not full
 				if(current_dic_index < DICTSIZE - 1){
-					dict[current_dic_index][0] = w[0] + 1;
-					for(i = 1; i <= w[0] + 1; i++){
+					dict[current_dic_index][0] = wk[0];
+					for(i = 1; i <= wk[0]; i++){
 						dict[current_dic_index][i] = wk[i];
 					}
 					current_dic_index++;
