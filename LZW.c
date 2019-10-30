@@ -117,7 +117,7 @@ void decode(FILE *in, FILE *out) {
 	int k = read12(in);
 	int current_dic_index = 256;
 	fputc(dict[k][1], out);
-	w = &dict[k];
+	w = dict[k];
 	k = read12(in);
 	//runs until the end of file is reached or the padding bit is detected
 	while(!feof(in) && k != DICTSIZE - 1){
@@ -130,9 +130,10 @@ void decode(FILE *in, FILE *out) {
 			}
 			//adds w + first character of dict[k] to dict if it does not already exist
 			int in_dic = 0;
+			int this_in_dic = 0;
 			for(i = 0; i < current_dic_index; i++){
 				int j;
-				for(j = 1; j <= dict[i][0] || j <= w[0]; j++){
+				for(j = 1; j < dict[i][0] && dict[i][0] == w[0] + 1; j++){
 					if(dict[i][j] == w[j])
 						in_dic = 1;
 					else {
@@ -140,14 +141,15 @@ void decode(FILE *in, FILE *out) {
 						break;
 					}
 				}
+				//checks the k part
 				if(in_dic && dict[k][1] == dict[i][j]){
-					in_dic = 1;
+					this_in_dic = 1;
 					break;
 				}
 				else
 					in_dic = 0;
 			}
-			if(!in_dic){
+			if(!this_in_dic){
 				dict[current_dic_index][0] = w[0] + 1;
 				for(i = 1; i <= w[0]; i++){
 					dict[current_dic_index][i] = w[i];
@@ -157,7 +159,7 @@ void decode(FILE *in, FILE *out) {
 			}
 		}
 		else {
-			//add w + first character of w to the dict if w[0] != 0
+			//add w + first character of w to the dict if it does not already exit
 			dict[current_dic_index][0] = w[0] + 1;
 			int i;
 			for(i = 1; i <= w[0]; i++){
@@ -170,7 +172,7 @@ void decode(FILE *in, FILE *out) {
 			}
 			current_dic_index++;
 		}
-		w = &dict[k];
+		w = dict[k];
 		k = read12(in);
 	}
 }
