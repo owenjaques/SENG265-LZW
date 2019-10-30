@@ -46,6 +46,7 @@ void encode(FILE *in, FILE *out){
 	unsigned char k;
 	unsigned char wk[ENTRYSIZE] = {};
 	int w_length = 0;
+	w[0] = 0;
 	int current_w_index;//used for writing the dict code of w to the file
 	int current_dic_index = 256;//used to keep track of the next dictionary index to put a new wk at
 	k = fgetc(in);
@@ -54,18 +55,19 @@ void encode(FILE *in, FILE *out){
 		int in_dic = 0;
 		int dont_add = 0;//a rarely used flag to indicate if w reached the entry size and to not add wk to dict
 		//if wk would be to large to hold in the dictionary skip to outputting w
-		if(w_length < ENTRYSIZE - 4){
+		if(w[0] < ENTRYSIZE - 4){
 			//creates wk from w and k
-			for(i = 0; i < w_length; i++)
+			for(i = 0; i <= w[0]; i++)
 				wk[i] = w[i];
 			wk[i] = k;
+			wk[0]++;
 			//sees if wk is in the dictionary
 			int this_in_dic;
 			for(i = 0; i < current_dic_index; i++){
 				int j;
 				this_in_dic = 0;
-				for(j = 1; j <= w_length + 1; j++){
-					if(wk[j-1] == dict[i][j] && dict[i][0] == w_length + 1)
+				for(j = 1; j <= w[0] + 1; j++){
+					if(wk[j] == dict[i][j] && dict[i][0] == w[0] + 1)
 						this_in_dic = 1;
 					else {
 						this_in_dic = 0;
@@ -82,8 +84,8 @@ void encode(FILE *in, FILE *out){
 			dont_add = 1;
 		if(in_dic){
 			//sets w to wk
-			w_length++;
-			for(i = 0; i < w_length; i++)
+			w[0]++;
+			for(i = 1; i <= w[0]; i++)
 				w[i] = wk[i];
 
 		}
@@ -92,15 +94,15 @@ void encode(FILE *in, FILE *out){
 			if(!dont_add){
 				//adds wk to dictionary if not full
 				if(current_dic_index < DICTSIZE - 1){
-					dict[current_dic_index][0] = w_length + 1;
-					for(i = 1; i <= w_length + 1; i++){
-						dict[current_dic_index][i] = wk[i-1];
+					dict[current_dic_index][0] = w[0] + 1;
+					for(i = 1; i <= w[0] + 1; i++){
+						dict[current_dic_index][i] = wk[i];
 					}
 					current_dic_index++;
 				}
 			}
-			w[0] = k;
-			w_length = 1;
+			w[1] = k;
+			w[0] = 1;
 			current_w_index = k;
 		}
 		k = fgetc(in);
