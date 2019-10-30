@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define DICTSIZE 4096 /* allow 4096 entries in the dict  */
-#define ENTRYSIZE 32
+#define ENTRYSIZE 30
 
 #define ENCODE 1
 #define DECODE 2
@@ -33,6 +33,30 @@ void initDic(){
 	}
 }
 
+//a helper function to check whether or not an entry is in the dictionary
+//params: entry[ENTRYSIZE] (unsigned char array)
+//	current_dic_index (int) - very important so that the function knows how much of the dictionary to check
+//returns: -1 if the entry cannot be found else the index of the dictionary where it is
+int inDic(unsigned char entry[ENTRYSIZE], int current_dic_index){
+	int i, j;
+	for(i = 0; i < current_dic_index; i++){
+		int this_in_dic = 0;//indicates if the entry is at this index in the dictionary
+		for(j = 1; j <= entry[0]; j++){
+			if(entry[j] == dict[i][j] && dict[i][0] == entry[0])
+				this_in_dic = 1;
+			else {
+				this_in_dic = 0;
+				break;
+			}
+		}
+		if(this_in_dic)
+			//if it has found the entry return the index it is at 
+			return i;
+	}
+	//return -1 if the entry is not found
+	return -1;
+}
+
 /*****************************************************************************/
 /* encode() performs the Lempel Ziv Welch compression from the algorithm in  */
 /* the assignment specification. The strings in the dictionary have to be    */
@@ -53,29 +77,17 @@ void encode(FILE *in, FILE *out){
 		int in_dic = 0;
 		int dont_add = 0;//a rarely used flag to indicate if w reached the entry size and to not add wk to dict
 		//if wk would be to large to hold in the dictionary skip to outputting w
-		if(w[0] < ENTRYSIZE - 4){
+		if(w[0] < ENTRYSIZE - 2){
 			//creates wk from w and k
 			for(i = 0; i <= w[0]; i++)
 				wk[i] = w[i];
 			wk[i] = k;
 			wk[0]++;
-			//sees if wk is in the dictionary
-			int this_in_dic;
-			for(i = 0; i < current_dic_index; i++){
-				int j;
-				this_in_dic = 0;
-				for(j = 1; j <= wk[0]; j++){
-					if(wk[j] == dict[i][j] && dict[i][0] == wk[0])
-						this_in_dic = 1;
-					else {
-						this_in_dic = 0;
-						break;
-					}
-				}
-				if(this_in_dic){
-					in_dic = 1;
-					current_w_index = i;
-				}
+			//sees if wk is in the dictionary and sets the current w index accordingly
+			int temp = inDic(wk, current_dic_index);
+			if(temp != -1){
+				in_dic = 1;
+				current_w_index = temp;
 			}
 		}
 		else
