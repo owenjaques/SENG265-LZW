@@ -127,12 +127,22 @@ void encode(FILE *in, FILE *out){
 void decode(FILE *in, FILE *out) {
 	unsigned char *w;//points to a dictionary entry
 	int k = read12(in);
+	//this will only go off if the file contained no 12 bit numbers
+	if(k == -1){
+		printf("Error Invalid Format\n");
+		exit(3);
+	}
 	int current_dic_index = 256;
 	fputc(dict[k][1], out);
 	w = dict[k];
 	k = read12(in);
 	//runs until the end of file is reached or the padding bit is detected
 	while(!feof(in) && k != DICTSIZE - 1){
+		//goes off if the file does not contain a valid combination of 12 bit numbers
+		if(k == -1){
+			printf("Error Invalid Format\n");
+			exit(3);
+		}
 		//checks if k is in the dictionary
 		if(dict[k][0]){
 			int i;
