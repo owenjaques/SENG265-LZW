@@ -41,8 +41,8 @@ int inDic(unsigned char entry[ENTRYSIZE], int current_dic_index){
 	int i, j;
 	for(i = 0; i < current_dic_index; i++){
 		int this_in_dic = 0;//indicates if the entry is at this index in the dictionary
-		for(j = 1; j <= entry[0]; j++){
-			if(entry[j] == dict[i][j] && dict[i][0] == entry[0])
+		for(j = 0; j <= entry[0]; j++){
+			if(entry[j] == dict[i][j])
 				this_in_dic = 1;
 			else {
 				this_in_dic = 0;
@@ -147,8 +147,8 @@ void decode(FILE *in, FILE *out) {
 					wk[i] = w[i];
 				wk[i] = dict[k][1];
 				wk[0]++;
-				//adds wk to the dictionary if it is not already there
-				if(inDic(wk, current_dic_index) == -1){
+				//adds wk to the dictionary if it is not already there and there is room
+				if(inDic(wk, current_dic_index) == -1 && current_dic_index < DICTSIZE - 2){
 					for(i = 0; i <= wk[0]; i++){
 						dict[current_dic_index][i] = wk[i];
 					}
@@ -165,11 +165,13 @@ void decode(FILE *in, FILE *out) {
 					ww[i] = w[i];
 				ww[i] = w[1];
 				ww[0]++;
-				//add ww to the dict if it does not already exit
+				//add ww to the dict if it does not already exit and there is room
 				if(inDic(ww, current_dic_index) == -1){
-					for(i = 0; i <= ww[0]; i++)
-						dict[current_dic_index][i] = ww[i];
-					//outputs dict[w + w[1]] to file
+					if(current_dic_index < DICTSIZE - 2){
+						for(i = 0; i <= ww[0]; i++)
+							dict[current_dic_index][i] = ww[i];
+					}
+					//outputs ww to file
 					for(i = 1; i <= dict[current_dic_index][0]; i++)
 						fputc(dict[current_dic_index][i], out);
 					current_dic_index++;
