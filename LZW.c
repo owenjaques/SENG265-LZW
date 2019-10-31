@@ -137,9 +137,8 @@ void decode(FILE *in, FILE *out) {
 		if(dict[k][0]){
 			int i;
 			//outputs dict[k] to file
-			for(i = 1; i <= dict[k][0]; i++){
+			for(i = 1; i <= dict[k][0]; i++)
 				fputc(dict[k][i], out);
-			}
 			//quickly makes wk from w + k[1] if it would be less than the entry size
 			if(w[0] < ENTRYSIZE -2){
 				unsigned char wk[ENTRYSIZE];
@@ -148,10 +147,9 @@ void decode(FILE *in, FILE *out) {
 				wk[i] = dict[k][1];
 				wk[0]++;
 				//adds wk to the dictionary if it is not already there and there is room
-				if(inDic(wk, current_dic_index) == -1 && current_dic_index < DICTSIZE - 2){
-					for(i = 0; i <= wk[0]; i++){
+				if(inDic(wk, current_dic_index) == -1 && current_dic_index < DICTSIZE - 1){
+					for(i = 0; i <= wk[0]; i++)
 						dict[current_dic_index][i] = wk[i];
-					}
 					current_dic_index++;
 				}
 			}
@@ -167,15 +165,15 @@ void decode(FILE *in, FILE *out) {
 				ww[0]++;
 				//add ww to the dict if it does not already exit and there is room
 				if(inDic(ww, current_dic_index) == -1){
-					if(current_dic_index < DICTSIZE - 2){
+					if(current_dic_index < DICTSIZE - 1){
 						for(i = 0; i <= ww[0]; i++)
 							dict[current_dic_index][i] = ww[i];
+						current_dic_index++;
 					}
-					//outputs ww to file
-					for(i = 1; i <= dict[current_dic_index][0]; i++)
-						fputc(dict[current_dic_index][i], out);
-					current_dic_index++;
 				}
+				//outputs ww to file regardless if there was room in the dict for it
+				for(i = 1; i <= ww[0]; i++)
+					fputc(ww[i], out);
 			}
 		}
 		w = dict[k];
