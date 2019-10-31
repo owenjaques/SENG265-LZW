@@ -103,7 +103,7 @@ void encode(FILE *in, FILE *out){
 			write12(out, current_w_index);
 			if(!dont_add){
 				//adds wk to dictionary if not full
-				if(current_dic_index < DICTSIZE - 1){
+				if(current_dic_index < DICTSIZE - 2){
 					dict[current_dic_index][0] = wk[0];
 					for(i = 1; i <= wk[0]; i++){
 						dict[current_dic_index][i] = wk[i];
@@ -140,49 +140,41 @@ void decode(FILE *in, FILE *out) {
 			for(i = 1; i <= dict[k][0]; i++){
 				fputc(dict[k][i], out);
 			}
-			//adds w + first character of dict[k] to dict if it does not already exist
-			int in_dic = 0;
-			int this_in_dic = 0;
-			for(i = 0; i < current_dic_index; i++){
-				int j;
-				for(j = 1; j < dict[i][0] && dict[i][0] == w[0] + 1; j++){
-					if(dict[i][j] == w[j])
-						in_dic = 1;
-					else {
-						in_dic = 0;
-						break;
+			//quickly makes wk from w + k[1] if it would be less than the entry size
+			if(w[0] < ENTRYSIZE -2){
+				unsigned char wk[ENTRYSIZE];
+				for(i = 0; i <= w[0]; i++)
+					wk[i] = w[i];
+				wk[i] = dict[k][1];
+				wk[0]++;
+				//adds wk to the dictionary if it is not already there
+				if(inDic(wk, current_dic_index) == -1){
+					for(i = 0; i <= wk[0]; i++){
+						dict[current_dic_index][i] = wk[i];
 					}
+					current_dic_index++;
 				}
-				//checks the k part
-				if(in_dic && dict[k][1] == dict[i][j]){
-					this_in_dic = 1;
-					break;
-				}
-				else
-					in_dic = 0;
-			}
-			if(!this_in_dic){
-				dict[current_dic_index][0] = w[0] + 1;
-				for(i = 1; i <= w[0]; i++){
-					dict[current_dic_index][i] = w[i];
-				}
-				dict[current_dic_index][i] = dict[k][1];
-				current_dic_index++;
 			}
 		}
 		else {
-			//add w + first character of w to the dict if it does not already exit
-			dict[current_dic_index][0] = w[0] + 1;
-			int i;
-			for(i = 1; i <= w[0]; i++){
-				dict[current_dic_index][i] = w[i];
+			//creates ww (w + w[1]) if it would be less than the entry size 
+			if(w[0] < ENTRYSIZE - 2){
+				int i;
+				unsigned char ww[ENTRYSIZE];
+				for(i = 0; i <= w[0]; i++)
+					ww[i] = w[i];
+				ww[i] = w[1];
+				ww[0]++;
+				//add ww to the dict if it does not already exit
+				if(inDic(ww, current_dic_index) == -1){
+					for(i = 0; i <= ww[0]; i++)
+						dict[current_dic_index][i] = ww[i];
+					//outputs dict[w + w[1]] to file
+					for(i = 1; i <= dict[current_dic_index][0]; i++)
+						fputc(dict[current_dic_index][i], out);
+					current_dic_index++;
+				}
 			}
-			dict[current_dic_index][i] = w[1];
-			//outputs dict[w + w[1]] to file
-			for(i = 1; i <= dict[current_dic_index][0]; i++){
-				fputc(dict[current_dic_index][i], out);
-			}
-			current_dic_index++;
 		}
 		w = dict[k];
 		k = read12(in);
