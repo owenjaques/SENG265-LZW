@@ -138,8 +138,8 @@ void decode(FILE *in, FILE *out) {
 	k = read12(in);
 	//runs until the end of file is reached or the padding bit is detected
 	while(!feof(in) && k != DICTSIZE - 1){
-		//goes off if the file does not contain a valid combination of 12 bit numbers
-		if(k == -1){
+		//if k is greater than the current_dic_index it indicates some part of the file where that code was defined has been deleted
+		if(k > current_dic_index){
 			printf("Error Invalid Format\n");
 			exit(3);
 		}
