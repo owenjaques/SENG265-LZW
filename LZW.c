@@ -14,6 +14,7 @@ int write12(FILE *outfil, int int12);
 void strip_lzw_ext(char *fname);
 void flush12(FILE *outfil);
 void initDic();
+int inDic(unsigned char entry[ENTRYSIZE], int current_dic_index);
 void encode(FILE *in, FILE *out);
 void decode(FILE *in, FILE *out);
 
@@ -68,14 +69,16 @@ int inDic(unsigned char entry[ENTRYSIZE], int current_dic_index){
 void encode(FILE *in, FILE *out){
 	unsigned char w[ENTRYSIZE] = {0};//an unsigned char array stored in the same format as the dict entries with length at index 0
 	unsigned char k;
-	unsigned char wk[ENTRYSIZE] = {};
+	unsigned char wk[ENTRYSIZE] = {};//similar to w but with k, length stored at index 0
 	int current_w_index;//used for writing the dict code of w to the file
 	int current_dic_index = 256;//used to keep track of the next dictionary index to put a new wk at
+	
 	k = fgetc(in);
 	while(!feof(in)){
 		int i;
-		int in_dic = 0;
+		int in_dic = 0;//a flag to indicate if something was in the dict for going in between the if statements without having to call inDic each time
 		int dont_add = 0;//a rarely used flag to indicate if w reached the entry size and to not add wk to dict
+
 		//if wk would be to large to hold in the dictionary skip to outputting w
 		if(w[0] < ENTRYSIZE - 2){
 			//creates wk from w and k
@@ -138,7 +141,7 @@ void decode(FILE *in, FILE *out) {
 	k = read12(in);
 	//runs until the end of file is reached or the padding bit is detected
 	while(!feof(in) && k != DICTSIZE - 1){
-		//if k is greater than the current_dic_index it indicates some part of the file where that code was defined has been deleted
+		//if k is greater than the current_dic_index it indicates the file has been corrupted
 		if(k > current_dic_index){
 			printf("Error Invalid Format\n");
 			exit(3);
