@@ -106,7 +106,7 @@ void encode(FILE *in, FILE *out){
 			write12(out, current_w_index);
 			if(!dont_add){
 				//adds wk to dictionary if not full
-				if(current_dic_index < DICTSIZE - 2){
+				if(current_dic_index < DICTSIZE - 1){
 					dict[current_dic_index][0] = wk[0];
 					for(i = 1; i <= wk[0]; i++){
 						dict[current_dic_index][i] = wk[i];
