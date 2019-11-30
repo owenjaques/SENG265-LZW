@@ -1,0 +1,35 @@
+Student (NetlinkID): owenjaques
+
+Style Grade: 19/20
+
+
+Select Qualitative Feedback:
+===========================
+
+Formatting 
+...
+Almost Up to mark.
+One issue: Make sure all the functions are using same tab spaces. 
+For example, read12 and write12 should be in-sync with rest of the code.
+
+Naming
+...
+
+Good naming conventions for variables/functions.
+
+
+Commenting
+...
+
+Good use of comments to describe functionality.
+
+
+Functional Decomposition
+...
+
+Good use of code segmentation. Nice work.
+
+
+General Qualitative Feedback from Teaching Team:
+===============================================
+Overall nice and clean implementation.
